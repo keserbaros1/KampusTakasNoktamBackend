@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  campusswap-db:
+    image: postgres:15-alpine
+    container_name: campusswap_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: campus_admin
+      POSTGRES_PASSWORD: MfElLepP3AvNFAT3enLzGkwFkroxRiad0yZlbVAv
+      POSTGRES_DB: campusswap
+    ports:
+      - "5432:5432"
+    volumes:
+      - campusswap_pgdata:/var/lib/postgresql/data
+
+campusswap-api:
+    build: .
+    container_name: campusswap_fastapi
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://campus_admin:MfElLepP3AvNFAT3enLzGkwFkroxRiad0yZlbVAv@campusswap-db:5432/campusswap
+    depends_on:
+      - campusswap-db
+    volumes:
+      - ./static/images:/app/static/images # Yüklenen fotoğraflar sunucuda kalıcı olsun
+
+volumes:
+  campusswap_pgdata:
