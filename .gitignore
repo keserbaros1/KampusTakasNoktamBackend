@@ -1,0 +1,17 @@
+# Python & Ortam
+KampusTakasNoktamVENV/
+PostgreSQL/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Güvenlik
+.env
+
+# Yüklenen Kullanıcı Dosyaları
+static/images/*
+!static/images/.gitkeep
+
+# IDE Ayarları
+.idea/
+.vscode/
