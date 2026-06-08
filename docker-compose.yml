@@ -14,7 +14,7 @@ services:
     volumes:
       - campusswap_pgdata:/var/lib/postgresql/data
 
-campusswap-api:
+  campusswap-api:
     build: .
     container_name: campusswap_fastapi
     restart: always
