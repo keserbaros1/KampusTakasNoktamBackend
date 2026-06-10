@@ -68,7 +68,6 @@ async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
     
     try:
         while True:
-            # Kullanıcıdan gelen JSON formatındaki mesajı bekle
             data = await websocket.receive_json()
             target_user_id = data.get("target_user_id")
             text = data.get("text")
@@ -82,17 +81,24 @@ async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
             )
             db.add(new_msg)
             db.commit()
+            db.refresh(new_msg) # ID ve Timestamp değerlerinin dolması için yenile
             
-            # 2. Gönderene "Mesajın iletildi" bilgisini dön
-            await websocket.send_json({"status": "SENT", "text": text})
+            # 2. Mesajı tam bir JSON objesi (Sözlük) haline getir
+            message_data = {
+                "id": new_msg.id,
+                "conversation_id": new_msg.conversation_id,
+                "sender_id": str(new_msg.sender_id),
+                "text": new_msg.text,
+                "timestamp": new_msg.timestamp.isoformat(),
+                "status": new_msg.status
+            }
             
-            # 3. Eğer karşı taraf o an uygulamadaysa (aktif bağlantısı varsa) mesajı anında ekranına düşür
+            # 3. Gönderene kendi mesajını tam obje olarak geri dön (UI'da anında görünmesi için)
+            await websocket.send_json(message_data)
+            
+            # 4. Karşı taraf aktifse ona da aynı tam objeyi ilet
             if target_user_id in manager.active_connections:
-                await manager.active_connections[target_user_id].send_json({
-                    "sender_id": user_id,
-                    "text": text,
-                    "conversation_id": conversation_id
-                })
+                await manager.active_connections[target_user_id].send_json(message_data)
                 
     except WebSocketDisconnect:
         manager.disconnect(user_id)
