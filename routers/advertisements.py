@@ -94,6 +94,13 @@ def get_my_ads(
 
 
 
+@router.get("/{ad_id}", response_model=AdvertisementResponse)
+def get_ad(ad_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    ad = db.query(Advertisement).filter(Advertisement.id == ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="İlan bulunamadı.")
+    return ad
+
 
 @router.post("/{ad_id}/images", response_model=AdvertisementResponse)
 def upload_ad_images(
