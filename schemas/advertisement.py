@@ -22,6 +22,7 @@ class AdvertisementCreate(AdvertisementBase):
 class AdvertisementResponse(AdvertisementBase):
     id: int
     seller_id: UUID
+    seller_full_name: str
     created_at: datetime
     is_active: bool
 

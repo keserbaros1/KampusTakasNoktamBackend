@@ -23,3 +23,7 @@ class Advertisement(Base):
 
     # İlanı çekerken sahibinin bilgilerine de kolayca ulaşmak için ilişki kuruyoruz
     seller = relationship("User", backref="advertisements")
+
+    @property
+    def seller_full_name(self):
+        return self.seller.full_name if self.seller else None
