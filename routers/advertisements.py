@@ -12,6 +12,21 @@ from routers.auth import get_current_user
 
 from sqlalchemy import func
 
+router = APIRouter(prefix="/ads", tags=["Advertisements"])
+
+@router.post("/", response_model=AdvertisementResponse, status_code=status.HTTP_201_CREATED)
+def create_ad(ad: AdvertisementCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Pydantic modelindeki verileri al ve seller_id'yi giriş yapan kullanıcıdan çek
+    new_ad = Advertisement(
+        **ad.model_dump(),
+        seller_id=current_user.id
+    )
+    db.add(new_ad)
+    db.commit()
+    db.refresh(new_ad)
+    return new_ad
+
+
 # ─── Admin: tüm ilanlar (auth yok) ───────────────────────────────────────────
 @router.get("/", response_model=List[AdvertisementResponse])
 def get_ads(
