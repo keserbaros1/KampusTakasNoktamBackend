@@ -10,20 +10,9 @@ from models.user import User
 from schemas.advertisement import AdvertisementCreate, AdvertisementResponse, AdvertisementUpdate
 from routers.auth import get_current_user
 
-router = APIRouter(prefix="/ads", tags=["Advertisements"])
+from sqlalchemy import func
 
-@router.post("/", response_model=AdvertisementResponse, status_code=status.HTTP_201_CREATED)
-def create_ad(ad: AdvertisementCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Pydantic modelindeki verileri al ve seller_id'yi giriş yapan kullanıcıdan çek
-    new_ad = Advertisement(
-        **ad.model_dump(),
-        seller_id=current_user.id
-    )
-    db.add(new_ad)
-    db.commit()
-    db.refresh(new_ad)
-    return new_ad
-
+# ─── Admin: tüm ilanlar (auth yok) ───────────────────────────────────────────
 @router.get("/", response_model=List[AdvertisementResponse])
 def get_ads(
     category: Optional[str] = Query(None, description="Örn: Elektronik, Kitap, Ev Eşyası"),
@@ -38,23 +27,57 @@ def get_ads(
 
     # Parametreler geldiyse sorguya zincirleme filtreleri ekle
     if category:
-        query = query.filter(Advertisement.category == category)
-    
+        query = query.filter(func.lower(Advertisement.category) == category.lower())
     if condition:
-        query = query.filter(Advertisement.condition == condition)
-        
+        query = query.filter(func.lower(Advertisement.condition) == condition.lower())
     if min_price is not None:
         query = query.filter(Advertisement.price >= min_price)
-        
     if max_price is not None:
         query = query.filter(Advertisement.price <= max_price)
-        
     if is_swap is not None:
         query = query.filter(Advertisement.is_swap == is_swap)
+    return query.all()
 
-    # Oluşturulan son sorguyu çalıştır ve listeyi dön
-    ads = query.all()
-    return ads
+
+# ─── Keşfet: kendi ilanları hariç aktif ilanlar ──────────────────────────────
+@router.get("/discover", response_model=List[AdvertisementResponse])
+def discover_ads(
+    category: Optional[str] = Query(None),
+    condition: Optional[str] = Query(None),
+    min_price: Optional[float] = Query(None),
+    max_price: Optional[float] = Query(None),
+    is_swap: Optional[bool] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    query = db.query(Advertisement).filter(
+        Advertisement.is_active == True,
+        Advertisement.seller_id != current_user.id
+    )
+    if category:
+        query = query.filter(func.lower(Advertisement.category) == category.lower())
+    if condition:
+        query = query.filter(func.lower(Advertisement.condition) == condition.lower())
+    if min_price is not None:
+        query = query.filter(Advertisement.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Advertisement.price <= max_price)
+    if is_swap is not None:
+        query = query.filter(Advertisement.is_swap == is_swap)
+    return query.all()
+
+
+# ─── İlanlarım: sadece giriş yapan kullanıcının ilanları ─────────────────────
+@router.get("/my-ads", response_model=List[AdvertisementResponse])
+def get_my_ads(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Advertisement).filter(
+        Advertisement.seller_id == current_user.id
+    ).order_by(Advertisement.created_at.desc()).all()
+
+
 
 
 @router.post("/{ad_id}/images", response_model=AdvertisementResponse)
