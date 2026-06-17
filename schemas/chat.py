@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
@@ -9,6 +10,8 @@ class MessageResponse(BaseModel):
     text: str
     timestamp: datetime
     status: str
+    attachment_url: Optional[str] = None
+    attachment_type: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -18,6 +21,11 @@ class ConversationResponse(BaseModel):
     user1_id: UUID
     user2_id: UUID
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
+
+class AttachmentResponse(BaseModel):
+    url: str
+    mime_type: str
+    file_name: str

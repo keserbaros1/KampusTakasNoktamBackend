@@ -23,5 +23,7 @@ class Message(Base):
     text = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
     status = Column(String, default="SENT") # SENT, DELIVERED, READ
+    attachment_url = Column(String, nullable=True)
+    attachment_type = Column(String, nullable=True)  # e.g. image/jpeg, application/pdf
 
     conversation = relationship("Conversation", back_populates="messages")

@@ -46,6 +46,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Fotoğrafların kaydedileceği klasörü otomatik oluştur
 os.makedirs("static/images", exist_ok=True)
+os.makedirs("static/images/avatars", exist_ok=True)
+os.makedirs("static/chat", exist_ok=True)
 
 # /static URL'sine gelen istekleri static klasörüne yönlendir
 app.mount("/static", StaticFiles(directory="static"), name="static")

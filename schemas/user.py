@@ -1,3 +1,4 @@
+import re
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import List, Optional
 from uuid import UUID
@@ -22,6 +23,13 @@ class UserUpdate(BaseModel):
     university: Optional[str] = None
     city: Optional[str] = None
 
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        if v is not None and not re.match(r'^\+905[0-9]{9}$', v):
+            raise ValueError('Telefon numarası +905XXXXXXXXX formatında olmalıdır (örn: +905321234567).')
+        return v
+
 class UserResponse(BaseModel):
     id: UUID
     full_name: str
@@ -29,19 +37,20 @@ class UserResponse(BaseModel):
     university: str
     phone: Optional[str] = None
     city: Optional[str] = None
-    profile_image_url: Optional[str] = None
+    avatar_url: Optional[str] = Field(None, validation_alias='profile_image_url')
     member_since: datetime
     is_email_verified: bool
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 class SellerProfileResponse(BaseModel):
     id: UUID
     full_name: str
     university: str
     city: Optional[str] = None
-    profile_image_url: str | None = None
+    avatar_url: Optional[str] = Field(None, validation_alias='profile_image_url')
     phone: str | None = None
     rating: float
     total_sales: int
@@ -52,3 +61,4 @@ class SellerProfileResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        populate_by_name = True
