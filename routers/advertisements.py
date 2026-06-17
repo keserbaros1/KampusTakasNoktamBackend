@@ -38,9 +38,9 @@ def get_ads(
     query = db.query(Advertisement).filter(Advertisement.is_active == True)
 
     if category:
-        query = query.filter(Advertisement.category == category.value)
+        query = query.filter(Advertisement.category == category)
     if condition:
-        query = query.filter(Advertisement.condition == condition.value)
+        query = query.filter(Advertisement.condition == condition)
     if min_price is not None:
         query = query.filter(Advertisement.price >= min_price)
     if max_price is not None:
@@ -66,9 +66,9 @@ def discover_ads(
         Advertisement.seller_id != current_user.id
     )
     if category:
-        query = query.filter(Advertisement.category == category.value)
+        query = query.filter(Advertisement.category == category)
     if condition:
-        query = query.filter(Advertisement.condition == condition.value)
+        query = query.filter(Advertisement.condition == condition)
     if min_price is not None:
         query = query.filter(Advertisement.price >= min_price)
     if max_price is not None:

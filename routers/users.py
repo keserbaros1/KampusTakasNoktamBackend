@@ -57,7 +57,7 @@ async def upload_avatar(
     with open(file_path, "wb") as f:
         f.write(contents)
 
-    current_user.profile_image_url = f"/static/images/avatars/{filename}"
+    current_user.avatar_url = f"/static/images/avatars/{filename}"
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -78,7 +78,7 @@ def read_seller_profile(user_id: UUID, db: Session = Depends(get_db)):
         "full_name": seller.full_name,
         "university": seller.university,
         "city": seller.city,
-        "profile_image_url": seller.profile_image_url,
+        "avatar_url": seller.avatar_url,
         "phone": seller.phone,
         "rating": seller.rating,
         "total_sales": seller.total_sales,

@@ -2,23 +2,9 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
-from enum import Enum
 
-class ConditionEnum(str, Enum):
-    EXCELLENT = "EXCELLENT"
-    GOOD = "GOOD"
-    FAIR = "FAIR"
-    POOR = "POOR"
-    DAMAGED = "DAMAGED"
-
-class CategoryEnum(str, Enum):
-    HOUSEHOLD_GOODS = "HOUSEHOLD_GOODS"
-    TEXTBOOKS = "TEXTBOOKS"
-    STUDENT_ESSENTIALS = "STUDENT_ESSENTIALS"
-    ELECTRONICS = "ELECTRONICS"
-    CLOTHING = "CLOTHING"
-    SPORTS = "SPORTS"
-    OTHER = "OTHER"
+# Enum'ların tek kaynağı model katmanı; burada sadece import ediyoruz.
+from models.advertisement import ConditionEnum, CategoryEnum
 
 class AdvertisementBase(BaseModel):
     title: str

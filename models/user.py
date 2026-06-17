@@ -13,7 +13,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     university = Column(String, nullable=False)
     member_since = Column(DateTime, default=datetime.utcnow)
-    profile_image_url = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     city = Column(String(100), nullable=True)
     rating = Column(Float, default=0.0)
