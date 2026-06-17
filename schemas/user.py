@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
@@ -17,11 +17,19 @@ class UserCreate(BaseModel):
             raise ValueError('Sisteme yalnızca .edu.tr uzantılı e-posta adresleri ile kayıt olunabilir.')
         return v
 
+class UserUpdate(BaseModel):
+    phone: Optional[str] = None
+    university: Optional[str] = None
+    city: Optional[str] = None
+
 class UserResponse(BaseModel):
     id: UUID
     full_name: str
     email: EmailStr
     university: str
+    phone: Optional[str] = None
+    city: Optional[str] = None
+    profile_image_url: Optional[str] = None
     member_since: datetime
     is_email_verified: bool
 
@@ -32,6 +40,7 @@ class SellerProfileResponse(BaseModel):
     id: UUID
     full_name: str
     university: str
+    city: Optional[str] = None
     profile_image_url: str | None = None
     phone: str | None = None
     rating: float

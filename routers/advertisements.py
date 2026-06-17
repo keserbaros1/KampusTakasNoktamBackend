@@ -7,10 +7,8 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.advertisement import Advertisement
 from models.user import User
-from schemas.advertisement import AdvertisementCreate, AdvertisementResponse, AdvertisementUpdate
+from schemas.advertisement import AdvertisementCreate, AdvertisementResponse, AdvertisementUpdate, ConditionEnum, CategoryEnum
 from routers.auth import get_current_user
-
-from sqlalchemy import func
 
 router = APIRouter(prefix="/ads", tags=["Advertisements"])
 
@@ -30,21 +28,19 @@ def create_ad(ad: AdvertisementCreate, db: Session = Depends(get_db), current_us
 # ─── Admin: tüm ilanlar (auth yok) ───────────────────────────────────────────
 @router.get("/", response_model=List[AdvertisementResponse])
 def get_ads(
-    category: Optional[str] = Query(None, description="Örn: Elektronik, Kitap, Ev Eşyası"),
-    condition: Optional[str] = Query(None, description="Örn: Yeni, Az Kullanılmış"),
+    category: Optional[CategoryEnum] = Query(None),
+    condition: Optional[ConditionEnum] = Query(None),
     min_price: Optional[float] = Query(None, description="Minimum fiyat"),
     max_price: Optional[float] = Query(None, description="Maksimum fiyat"),
     is_swap: Optional[bool] = Query(None, description="Sadece takasa açık olanlar (true/false)"),
     db: Session = Depends(get_db)
 ):
-    # Başlangıç sorgumuz: Sadece aktif ilanlar
     query = db.query(Advertisement).filter(Advertisement.is_active == True)
 
-    # Parametreler geldiyse sorguya zincirleme filtreleri ekle
     if category:
-        query = query.filter(func.lower(Advertisement.category) == category.lower())
+        query = query.filter(Advertisement.category == category.value)
     if condition:
-        query = query.filter(func.lower(Advertisement.condition) == condition.lower())
+        query = query.filter(Advertisement.condition == condition.value)
     if min_price is not None:
         query = query.filter(Advertisement.price >= min_price)
     if max_price is not None:
@@ -57,8 +53,8 @@ def get_ads(
 # ─── Keşfet: kendi ilanları hariç aktif ilanlar ──────────────────────────────
 @router.get("/discover", response_model=List[AdvertisementResponse])
 def discover_ads(
-    category: Optional[str] = Query(None),
-    condition: Optional[str] = Query(None),
+    category: Optional[CategoryEnum] = Query(None),
+    condition: Optional[ConditionEnum] = Query(None),
     min_price: Optional[float] = Query(None),
     max_price: Optional[float] = Query(None),
     is_swap: Optional[bool] = Query(None),
@@ -70,9 +66,9 @@ def discover_ads(
         Advertisement.seller_id != current_user.id
     )
     if category:
-        query = query.filter(func.lower(Advertisement.category) == category.lower())
+        query = query.filter(Advertisement.category == category.value)
     if condition:
-        query = query.filter(func.lower(Advertisement.condition) == condition.lower())
+        query = query.filter(Advertisement.condition == condition.value)
     if min_price is not None:
         query = query.filter(Advertisement.price >= min_price)
     if max_price is not None:

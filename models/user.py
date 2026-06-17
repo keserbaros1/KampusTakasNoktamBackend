@@ -15,6 +15,7 @@ class User(Base):
     member_since = Column(DateTime, default=datetime.utcnow)
     profile_image_url = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    city = Column(String(100), nullable=True)
     rating = Column(Float, default=0.0)
     total_sales = Column(Integer, default=0)
     total_reviews = Column(Integer, default=0)

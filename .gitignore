@@ -12,6 +12,13 @@ __pycache__/
 static/images/*
 !static/images/.gitkeep
 
+# Veritabanı Verisi
+.postgres_data/
+
+# Log Dosyaları
+logfile
+*.log
+
 # IDE Ayarları
 .idea/
 .vscode/

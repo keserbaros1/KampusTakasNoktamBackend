@@ -2,23 +2,37 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
+from enum import Enum
 
-# Ortak alanları Base modelde topluyoruz
+class ConditionEnum(str, Enum):
+    EXCELLENT = "EXCELLENT"
+    GOOD = "GOOD"
+    FAIR = "FAIR"
+    POOR = "POOR"
+    DAMAGED = "DAMAGED"
+
+class CategoryEnum(str, Enum):
+    HOUSEHOLD_GOODS = "HOUSEHOLD_GOODS"
+    TEXTBOOKS = "TEXTBOOKS"
+    STUDENT_ESSENTIALS = "STUDENT_ESSENTIALS"
+    ELECTRONICS = "ELECTRONICS"
+    CLOTHING = "CLOTHING"
+    SPORTS = "SPORTS"
+    OTHER = "OTHER"
+
 class AdvertisementBase(BaseModel):
     title: str
     description: str
     price: Optional[float] = 0.0
     is_swap: bool = False
-    condition: str
-    category: str
+    condition: ConditionEnum
+    category: CategoryEnum
     location: str
     image_urls: List[str] = []
 
-# Yeni ilan oluşturulurken kullanıcıdan istenecek veriler
 class AdvertisementCreate(AdvertisementBase):
     pass
 
-# İlan listelenirken dışarıya dönülecek veriler
 class AdvertisementResponse(AdvertisementBase):
     id: int
     seller_id: UUID
@@ -34,7 +48,7 @@ class AdvertisementUpdate(BaseModel):
     description: Optional[str] = None
     price: Optional[float] = None
     is_swap: Optional[bool] = None
-    condition: Optional[str] = None
-    category: Optional[str] = None
+    condition: Optional[ConditionEnum] = None
+    category: Optional[CategoryEnum] = None
     location: Optional[str] = None
     is_active: Optional[bool] = None
