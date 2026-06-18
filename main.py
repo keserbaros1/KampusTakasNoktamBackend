@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -27,6 +28,23 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+# CORS — web ön yüzünün (Vercel) tarayıcıdan doğrudan API çağırabilmesi için.
+# Kimlik doğrulama Authorization header (Bearer) ile yapıldığından credentials kapalı.
+# En son eklenen middleware en dışta çalışır; CORS böylece preflight (OPTIONS)
+# isteklerini rate-limit'ten önce yanıtlar.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://trakya-kampus-takas.vercel.app",
+        "http://localhost:3001",
+        "http://localhost:5173",
+    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Vercel preview dağıtımları
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # HATA YAKALAMA
 @app.exception_handler(RequestValidationError)
