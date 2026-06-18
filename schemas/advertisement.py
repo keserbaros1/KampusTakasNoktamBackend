@@ -37,4 +37,5 @@ class AdvertisementUpdate(BaseModel):
     condition: Optional[ConditionEnum] = None
     category: Optional[CategoryEnum] = None
     location: Optional[str] = None
+    image_urls: Optional[List[str]] = None
     is_active: Optional[bool] = None
