@@ -37,6 +37,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://trakya-kampus-takas.vercel.app",
+        "https://caglarengingundogan.xyz",
         "http://localhost:3001",
         "http://localhost:5173",
     ],
